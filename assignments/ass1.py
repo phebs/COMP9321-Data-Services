@@ -3,6 +3,7 @@
 import pandas as pd
 from tabulate import tabulate
 import matplotlib.pyplot as plt
+from matplotlib import *
 import re
 
 #loads csv data into a dataframe
@@ -140,7 +141,9 @@ def question_8(dsorted):
     print("***************")
     dsorted = cleansing(dsorted)
     dftop = dsorted.head(10)
-    ax= dftop.plot.barh(y=['Total_x','Total_y'],stacked=True)
+    ax= dftop.plot.barh(y=['Total_x','Total_y'],stacked=True, title='Medals for Winter and Summer Games',figsize=(5,5))
+    ax.legend(["Summer Games","Winter Games"])
+    ax.set_aspect(aspect='auto')
     plt.show()
 
 def question_9(dmerged):
@@ -150,8 +153,13 @@ def question_9(dmerged):
     dmerged = cleansing(dmerged)
     countries = ['United States','Australia','Great Britain','Japan','New Zealand']
     Arow = dmerged.loc[countries]
-
-    print_dataframe(Arow)
+    # ax = plt.axes()
+    ax = Arow.plot.bar(y=["Gold_y","Silver_y","Bronze_y"],title="Winter Games",color=['#4671be','#eb7c3e','#a3a3a3'],rot=0)
+    ax.legend(["Gold","Silver","Bronze"])
+    # ax.set_position(pos='bottom')
+    # ax.set_xticklabels(ax.get_xticklabels(),rotation=90)
+    ax.set_aspect(aspect='auto')
+    plt.show()
     
     
 
@@ -166,5 +174,5 @@ if __name__ == '__main__':
     question_6(dmerged)
     dsorted = question_7(dmerged)
     question_8(dsorted)
-    # question_9(dmerged)
+    question_9(dmerged)
 
