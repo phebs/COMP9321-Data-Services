@@ -122,12 +122,14 @@ def question_6(dmerged):
     print(max_df + "has the highest difference between Summer and Winter Gold medals")
 
 #Sorts country in descending order of the total number of medals
-#Bottom 5 has discarded the Nan Values
+#Totals is dropped
+#Bottom 5 doesn't include the Nan Values
 def question_7(dmerged):
     print("*********************************************")
     print("Question 7")
     print("*********************************************")
     dsorted = dmerged.sort_values(by='Total_Medals',axis=0,ascending=False,)
+    dsorted= dsorted.drop(index='Totals')
     print("--------- Top 5 Rows ---------")
     print_dataframe(dsorted.head(5))
     print("--------- Bottom 5 Rows ---------")
