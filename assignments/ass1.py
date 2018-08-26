@@ -3,7 +3,6 @@
 import pandas as pd
 from tabulate import tabulate
 import matplotlib.pyplot as plt
-from matplotlib import *
 import re
 
 #loads csv data into a dataframe
@@ -11,7 +10,7 @@ def load_csv(csv_filename):
     dataframe = pd.read_csv(csv_filename, encoding='utf-8')
     return dataframe
 
- # This iterates through each cell : iterates through on rows and columns
+ # Prints the data, prints columns and then each row
 def print_dataframe(dataframe, print_column=True, print_rows=True):
     # print column names
     line=''
@@ -25,24 +24,13 @@ def print_dataframe(dataframe, print_column=True, print_rows=True):
             line+= ",".join([str(row[column]) for column in dataframe])
             print(line)
 
-def print_series(dataframe):
-    line_index = ",".join([str(key) for key in dataframe.index])
-    line_row = ",".join([str(values) for values in dataframe])
-    print(line_index)
-    print(line_row)
-
-
-def print_full(x):
-    pd.set_option('display.max_rows', len(x))
-    print(x)
-    pd.reset_option('display.max_rows')
-
 
 def print_table(df):
     print_dataframe(df,print_rows=False)
     print(tabulate(df))
 
 
+#Removes the comma in the values and converts them to all a number
 def cleansing(df):
     for column in df:
         df[column]= df[column].apply(str).apply(lambda x: x.replace(',',''))
@@ -50,13 +38,14 @@ def cleansing(df):
 
     return df
 
+#Removes the useless information after the country
 def fix_index(line):
         line = re.sub(r'\(.*\)',"",line)
         line = re.sub(r'\[.*\]',"",line).strip()
         return line
 
 
-
+#Loads the excel, make the countries as the index, rename the columns, print the first 4 dataframe
 def question_1():
     print("*********************************************")
     print("Question 1")
@@ -81,21 +70,21 @@ def question_1():
                     }
     dmerged=pd.merge(df1,df2,how='inner',left_index=True,right_index=True)
     dmerged.rename(columns=column_rename,inplace=True)
-    # dmerged.rename(index=fix_index,inplace=True)
     print_table(dmerged)
     print_dataframe(dmerged.head(5))
     return dmerged
 
 
+#Prints the first country and the countries are already the index as completed in question 1
 def question_2(dmerged):
     print("*********************************************")
     print("Question 2")
     print("*********************************************")
     #index has been placed to country already in the first question
-    series = dmerged.iloc[0]
-    print_series(series)
+    print_dataframe(dmerged.head(1))
     return dmerged
 
+#Removes the Rubish column
 def question_3(dmerged):
     print("*********************************************")
     print("Question 3")
@@ -104,6 +93,7 @@ def question_3(dmerged):
     print_dataframe(dmerged.head(5))
     return dmerged
 
+#Drops all rows that have Nan in them
 def question_4(dmerged):
     print("*********************************************")
     print("Question 4")
@@ -112,20 +102,20 @@ def question_4(dmerged):
     print_dataframe(dmerged.tail(10))
     return dmerged
 
+#Prints country that contains most amount of Gold medals
 def question_5(dmerged):
     print("*********************************************")
     print("Question 5")
     print("*********************************************")
+    #Uses the cleansing function - converts all of the values to an integer
     dmerged = cleansing(dmerged)
-    #Loading Summer Olympic games
-    # df1 = pd.read_csv('Olympics_dataset1.csv', index_col=0, skiprows=1)
     dGold=dmerged['Gold_Summer']
     dGold = dGold[:(len(dGold) - 1)]
     max_df=dGold.idxmax()
     print(str(max_df) + " contains " + str(dGold.loc[max_df]) + " Gold medals")
     return dmerged
 
-
+#Prints the country with the biggest difference between summer and winter games
 def question_6(dmerged):
     print("*********************************************")
     print("Question 6")
@@ -136,29 +126,21 @@ def question_6(dmerged):
     dGoldW = dGoldW[:(len(dGoldW)) - 1 ]
     max_df = (dGoldS - dGoldW).abs().idxmax()
     print(max_df + "has the highest difference between Summer and Winter Gold medals")
-'''
-TO DO:
-Fix the filter
-Fix the columns
-cleans Prooperly
-Show the top 5 countries and not the total
-'''
+
+#Sorts country in descending order of the total number of medals
 def question_7(dmerged):
     print("*********************************************")
     print("Question 7")
     print("*********************************************")
-    #Fix the columns and data 
-    # dmerged['Total.1']=  dmerged['Total.1'].apply(lambda x: x.replace(',',''))
-    # dmerged['Total.1']= dmerged['Total.1'].astype(float)
     dsorted = dmerged.sort_values(by='Total_Medals',axis=0,ascending=False,)
     print_table(dsorted)
-    # dsorted= dsorted.drop(index='Totals')
     print("--------- Top 5 Rows ---------")
     print_dataframe(dsorted.head(5))
     print("--------- Bottom 5 Rows ---------")
     print_dataframe(dsorted.tail(5))
     return dsorted
 
+#Prints out medals for winter and summer games
 def question_8(dsorted):
     print("*********************************************")
     print("Question 8")
@@ -169,6 +151,7 @@ def question_8(dsorted):
     ax.legend(["Summer Games","Winter Games"])
     plt.show()
 
+#Prints column graph for those respective countries
 def question_9(dmerged):
     print("*********************************************")
     print("Question 9")
@@ -176,12 +159,8 @@ def question_9(dmerged):
     dmerged.rename(index=fix_index,inplace=True)
     countries = ['United States','Australia','Great Britain','Japan','New Zealand']
     Arow = dmerged.loc[countries]
-    # ax = plt.axes()
     ax = Arow.plot.bar(y=["Gold_Winter","Silver_Winter","Bronze_Winter"],title="Winter Games",color=['#4671be','#eb7c3e','#a3a3a3'],rot=0)
     ax.legend(["Gold","Silver","Bronze"])
-    # ax.set_position(pos='bottom')
-    # ax.set_xticklabels(ax.get_xticklabels(),rotation=90)
-    ax.set_aspect(aspect='auto')
     plt.show()
     
     
