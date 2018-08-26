@@ -148,8 +148,10 @@ def question_9(dmerged):
     print("Question 9")
     print("***************")
     dmerged = cleansing(dmerged)
-    Arow = dmerged.loc('Australia')
-    print(Arow)
+    countries = ['United States','Australia','Great Britain','Japan','New Zealand']
+    Arow = dmerged.loc[countries]
+
+    print_dataframe(Arow)
     
     
 
@@ -163,6 +165,6 @@ if __name__ == '__main__':
     question_5(dmerged)
     question_6(dmerged)
     dsorted = question_7(dmerged)
-    # question_8(dsorted)
-    question_9(dmerged)
+    question_8(dsorted)
+    # question_9(dmerged)
 
