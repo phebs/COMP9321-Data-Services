@@ -1,7 +1,6 @@
 #/usr/bin/python3
 
 import pandas as pd
-from tabulate import tabulate
 import matplotlib.pyplot as plt
 import re
 
@@ -25,10 +24,6 @@ def print_dataframe(dataframe, print_column=True, print_rows=True):
             print(line)
 
 
-def print_table(df):
-    print_dataframe(df,print_rows=False)
-    print(tabulate(df))
-
 
 #Removes the comma in the values and converts them to all a number
 def cleansing(df):
@@ -45,13 +40,14 @@ def fix_index(line):
         return line
 
 
-#Loads the excel, make the countries as the index, rename the columns, print the first 4 dataframe
+#Loads the excel, make the countries as the index, rename the columns, print the first 5 dataframe
 def question_1():
     print("*********************************************")
     print("Question 1")
     print("*********************************************")
     df1 = pd.read_csv('Olympics_dataset1.csv', index_col=0, skiprows=1)
     df2 = pd.read_csv('Olympics_dataset2.csv', index_col=0, skiprows=1)
+    dmerged=pd.merge(df1,df2,how='inner',left_index=True,right_index=True)
     column_rename = {"Number of Games the country participated in_x" : "no_Games_Country_Participated_Summer", 
                     "Gold_x":"Gold_Summer",
                     "Silver_x":"Silver_Summer",
@@ -68,9 +64,7 @@ def question_1():
                     "Bronze.1":"Bronze_Total",
                     "Total.1":"Total_Medals"
                     }
-    dmerged=pd.merge(df1,df2,how='inner',left_index=True,right_index=True)
     dmerged.rename(columns=column_rename,inplace=True)
-    print_table(dmerged)
     print_dataframe(dmerged.head(5))
     return dmerged
 
@@ -128,12 +122,12 @@ def question_6(dmerged):
     print(max_df + "has the highest difference between Summer and Winter Gold medals")
 
 #Sorts country in descending order of the total number of medals
+#Bottom 5 has discarded the Nan Values
 def question_7(dmerged):
     print("*********************************************")
     print("Question 7")
     print("*********************************************")
     dsorted = dmerged.sort_values(by='Total_Medals',axis=0,ascending=False,)
-    print_table(dsorted)
     print("--------- Top 5 Rows ---------")
     print_dataframe(dsorted.head(5))
     print("--------- Bottom 5 Rows ---------")
