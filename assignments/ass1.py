@@ -2,6 +2,8 @@
 
 import pandas as pd
 from tabulate import tabulate
+import matplotlib.pyplot as plt
+import re
 
 #loads csv data into a dataframe
 def load_csv(csv_filename):
@@ -34,14 +36,29 @@ def print_table(df):
     print(tabulate(df))
 
 
+def cleansing(df):
+    for column in df:
+        df[column]= df[column].apply(str).apply(lambda x: x.replace(',',''))
+        df[column] = pd.to_numeric(df[column])
+
+    return df
+
+def fix_index(line):
+        line = re.sub(r'\(.*\)',"",line)
+        line = re.sub(r'\[.*\]',"",line).strip()
+        return line
+
+
+
 def question_1():
-	df1 = pd.read_csv('Olympics_dataset1.csv', index_col=0, skiprows=1)
-	df2 = pd.read_csv('Olympics_dataset2.csv', index_col=0, skiprows=1)
-	# df1.rename(columns={list(df1)[0]:'col'}, inplace=True)
-	dmerged=pd.merge(df1,df2,how='inner',left_index=True,right_index=True)
-	print_table(dmerged)
-	print_dataframe(dmerged.head(5))
-	return dmerged
+    df1 = pd.read_csv('Olympics_dataset1.csv', index_col=0, skiprows=1)
+    df2 = pd.read_csv('Olympics_dataset2.csv', index_col=0, skiprows=1)
+    # df1.rename(columns={list(df1)[0]:'col'}, inplace=True)
+    dmerged=pd.merge(df1,df2,how='inner',left_index=True,right_index=True)
+    dmerged.rename(index=fix_index,inplace=True)
+    print_table(dmerged)
+    print_dataframe(dmerged.head(5))
+    return dmerged
 
 
 def question_2(dmerged):
@@ -75,8 +92,10 @@ def question_5(dmerged):
     #Loading Summer Olympic games
     # df1 = pd.read_csv('Olympics_dataset1.csv', index_col=0, skiprows=1)
     dGold= dmerged['Gold_x'].apply(lambda x: x.replace(',',''))
+    dGold = dGold.astype(float)
+    # dGold=dmerged['Gold_x']
     dGold = dGold[:(len(dGold) - 1)]
-    max_df=dGold.astype(float).idxmax()
+    max_df=dGold.idxmax()
     print(max_df)
 
 
@@ -107,6 +126,8 @@ def question_7(dmerged):
     dmerged['Total.1']= dmerged['Total.1'].astype(float)
     dsorted = dmerged.sort_values(by='Total.1',axis=0,ascending=False,)
     print_table(dsorted)
+    dsorted= dsorted.drop(index='Totals')
+    print(dsorted.index)
     print("--------- Top 10 Rows ---------")
     print_dataframe(dsorted.head(10))
     print("--------- Bottom 10 Rows ---------")
@@ -114,6 +135,23 @@ def question_7(dmerged):
     return dsorted
 
 def question_8(dsorted):
+    print("***************")
+    print("Question 8")
+    print("***************")
+    dsorted = cleansing(dsorted)
+    dftop = dsorted.head(10)
+    ax= dftop.plot.barh(y=['Total_x','Total_y'],stacked=True)
+    plt.show()
+
+def question_9(dmerged):
+    print("***************")
+    print("Question 9")
+    print("***************")
+    dmerged = cleansing(dmerged)
+    Arow = dmerged.loc('Australia')
+    print(Arow)
+    
+    
 
 
 
@@ -125,5 +163,6 @@ if __name__ == '__main__':
     question_5(dmerged)
     question_6(dmerged)
     dsorted = question_7(dmerged)
-    question_8(dsorted)
+    # question_8(dsorted)
+    question_9(dmerged)
 
