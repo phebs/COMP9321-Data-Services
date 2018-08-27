@@ -145,6 +145,7 @@ def question_8(dsorted):
     dftop = dsorted.head(10)
     ax= dftop.plot.barh(y=['Total_Summer','Total_Winter'],stacked=True, title='Medals for Winter and Summer Games')
     ax.legend(["Summer Games","Winter Games"])
+    plt.tight_layout()
     plt.show()
 
 #Prints column graph for those respective countries
@@ -157,6 +158,7 @@ def question_9(dmerged):
     Arow = dmerged.loc[countries]
     ax = Arow.plot.bar(y=["Gold_Winter","Silver_Winter","Bronze_Winter"],title="Winter Games",color=['#4671be','#eb7c3e','#a3a3a3'],rot=0)
     ax.legend(["Gold","Silver","Bronze"])
+    plt.tight_layout()
     plt.show()
     
     
