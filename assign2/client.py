@@ -8,11 +8,11 @@ import re
 app = Flask(__name__)
 api = Api(app)
 
-
+#TODO change collection id to indicator id
 # The following is the schema of Book
 #TODO needs to be changed
 Economic_model = api.model('EconInd', {
-    'Flickr_URL': fields.String,
+    'q': fields.String,
     'Publisher': fields.String,
     'Author': fields.String,
     'Title': fields.String,
@@ -66,14 +66,16 @@ class ToPut(Resource):
 @api.route('/EconIndicator/<int:collection_id>')
 class ToCollectionID(Resource):
     @api.expect(200, "Successful showing")
+    @api.expect(404,"Collection ID doesn't exist")
     @api.doc(description="Lists the details of a particular collection id")
     def get(self,collection_id):
         query = {"collection_id": collection_id}
         abbreviate = False
-        #TODO if collection id doesn't exist
         response = db.read_from(query,abbreviate)
-        # print(response)
-        return response,200
+        if response:
+            return response,200
+        else:
+            api.abort(404, str(collection_id) + ":collection id doesn't exist")
 
     @api.expect(200,"Succesfully deleted")
     @api.expect(404,"Collection ID doesn't exist")
@@ -85,29 +87,43 @@ class ToCollectionID(Resource):
             return {collection_id: "Doesn't exist"},404
         return {"message": "Collection = " + str(collection_id) + " is removed from the database!"},200
 
+@api.expect(parser)
 @api.route('/EconIndicator/<int:collection_id>/<year>')
 class queryTopBot(Resource):
     @api.expect(404,"Either number/collection id/query doesn't exist")
     @api.expect(200,"Retrieved the certain number of countries")
-    @api.expect(parser, validate=True)
     @api.doc(description="Finds the top-bottom results")
     def get(self, collection_id, year,):
         args = parser.parse_args()
         query = args.get('q')
-        # query = request.args.get('q')
-        print(query)
-        match = re.match(r'(top|bottom)([0-9]+)', query, re.M | re.I)
-        if match:
-            decide = match.group(1)
-            no = int(match.group(2))
-            if no > 0 and no <= 100:
-                result = db.country_print(collection_id, year, decide, no)
-                #TODO check to make sure that the year and collection ID exists
-                return result,200
-            else:
-                api.abort(404, "Number is not within the range")
-        else:
-            api.abort(404, "Query is not correct")
+        parsearg = {
+            "collection_id": collection_id,
+            "year": year,
+            "decide":"",
+            "no": 0,
+            "all": True
+        }
+        #if query doesn't exist it finds all of it that fits that list
+        if query is not None:
+            match = re.match(r'(top|bottom)([0-9]+)', query, re.M | re.I)
+            if match:
+                decide = match.group(1)
+                no = int(match.group(2))
+                if no > 0 and no <= 100:
+                    #updating the values for the parameters that are being passed
+                    parsearg["decide"]=decide
+                    parsearg["no"]=no
+                    #Flag to state to not show all of the results
+                    parsearg["all"]=False
+                    result = db.country_print(**parsearg)
+                    if result is not None:
+                        return result,200
+
+        result = db.country_print(**parsearg)
+        #if collection ID doesn't exist, it gives out a 404
+        if result is None:
+            api.abort(404, "Collection ID doesn't exist")
+        return result, 200
 
 
 @api.route('/EconIndicator/<int:collection_id>/<year>/<country>')

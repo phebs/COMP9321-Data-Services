@@ -145,7 +145,7 @@ class database(object):
         return response.deleted_count
 
 
-    def country_print(self,collection_id,year,decide,no):
+    def country_print(self,all,collection_id,year,decide,no):
         db = self.client[self.db]
         db.authenticate('phb', 'COMP9321')
         c = db[self.collection]
@@ -153,20 +153,28 @@ class database(object):
         query = {"collection_id" : collection_id}
         holder = list()
         result = list(c.find(query))
+        if len(result) < 1:
+            return None
         result = result[0]
+
         #goes through all the entries to find which entries have the same date
         for response in result.get("entries"):
             if response.get("date") == year:
                 holder.append(response)
-        if (decide == "top"):
+        if all or (decide == "top"):
             ifreverse=True
         else:
             ifreverse=False
         #Sorts the values
         result_sort=sorted(holder,key=lambda x: (x.get("value") is not None, x.get("value")),reverse=ifreverse)
 
-        if (len(result_sort) >= no):
+        if (len(result_sort) >= no and not all):
             result_sort=result_sort[:no]
 
-        return result_sort
+        result_return = {
+            "indicator" : result.get("indicator"),
+            "indicator_value": result.get("indicator_value"),
+            "entries": result_sort
+        }
+        return result_return
 
