@@ -11,7 +11,8 @@ class database(object):
         self.db = db_name
         self.collection = collection
         self.client = MongoClient(host=self.mongo_host,port = self.mongo_port)
-        self.unique_id = 0
+
+    def authenti
 
     def createPayload(self,data):
         # Removes the unncessary header
@@ -32,13 +33,12 @@ class database(object):
             countryList.append(country)
 
         new_data = {
-            "collection_id": self.unique_id,
+            "collection_id": indicator,
             "indicator": indicator,
             "indicator_value": value,
             "creation_time": str(datetime.now()),
             "entries": countryList,
         }
-        self.unique_id += 1
 
         print("Writing into the mongodb")
         # print(new_data)
@@ -101,12 +101,13 @@ class database(object):
         db = self.client[self.db]
         db.authenticate('phb', 'COMP9321')
         c = db[self.collection]
+
         result_list=list()
         response = list(c.find().sort("collection_id"))
         for result in response:
             result_return = {
                 #May change the integer conversion
-                "location": self.collection + "/" + str(result.get('collection_id')),
+                "location": self.collection + "/" + result.get('collection_id'),
                 "collection_id": result.get("collection_id"),
                 "creation_time": result.get("creation_time"),
                 "indicator": result.get("indicator"),
