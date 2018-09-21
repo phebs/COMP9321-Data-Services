@@ -8,11 +8,12 @@ import re
 app = Flask(__name__)
 api = Api(app)
 
-# The following is the schema of Book
+# The following is the schema of Economic model
 Economic_model = api.model('EconInd', {
     'indicator_id': fields.String,
 })
 
+#Adding the q parser to dictate for top/bottom for qs 6
 parser = reqparse.RequestParser()
 parser.add_argument('q')
 

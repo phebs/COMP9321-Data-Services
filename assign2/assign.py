@@ -1,5 +1,4 @@
 import json
-import pandas as pd
 from pymongo import MongoClient
 from datetime import *
 
@@ -12,18 +11,19 @@ class database(object):
         self.collection = collection
         self.client = MongoClient(host=self.mongo_host,port = self.mongo_port)
 
+    '''
+    Authenticates so that user has access to mongodb
+    '''
     def authenticate(self):
         db = self.client[self.db]
         db.authenticate('phb', 'COMP9321')
         c = db[self.collection]
         return c
 
-
+    '''
+    Part of creating a new indicator
+    '''
     def createPayload(self,data):
-        # Removes the unncessary header
-        # data = json.load(f)[1]
-        # Retrieves the header for the header collection
-
         header = data[0].get("indicator")
         indicator = header.get("id")
         value = header.get("value")
@@ -36,7 +36,7 @@ class database(object):
                 "value": entry.get("value")
             }
             countryList.append(country)
-
+        #Adds into a dict
         new_data = {
             "collection_id": indicator,
             "indicator": indicator,
@@ -45,23 +45,20 @@ class database(object):
             "entries": countryList,
         }
 
-        print("Writing into the mongodb")
-        # print(new_data)
+        #next function writes it into mongodb
         self.write_in_mongodb(new_data)
-        #
-        # print("Querying the database")
-        # dataframe = db.read_from_mongodb()
-        # print(dataframe)
-
+    '''
+    Writes into mongodb
+    '''
     def write_in_mongodb(self,dataframe):
-
             c=self.authenticate()
-            # You can only store documents in mongodb;
-            # so you need to convert rows inside the dataframe into a list of json objects
             records = dataframe
             c.insert(records)
 
-
+    '''
+    Reads from mongodb depending on the query
+    abbreviate  = True return more concise results
+    '''
     def read_from(self,query,abbreviate):
         c = self.authenticate()
         ignore = {'_id':0}
@@ -83,14 +80,15 @@ class database(object):
             else:
                 result_return = result
             return result_return
-
+    '''
+    Returns a list of all documents
+    '''
     def read_all(self):
         c = self.authenticate()
         result_list=list()
         response = list(c.find().sort("collection_id"))
         for result in response:
             result_return = {
-                #May change the integer conversion
                 "location": self.collection + "/" + result.get('collection_id'),
                 "collection_id": result.get("collection_id"),
                 "creation_time": result.get("creation_time"),
@@ -98,7 +96,9 @@ class database(object):
             }
             result_list.append(result_return)
         return result_list
-
+    '''
+    Queries according to collection id, year and country
+    '''
     def queryYD(self,query,collection_id,year,country):
         c = self.authenticate()
         result = list(c.find(query))
@@ -116,16 +116,18 @@ class database(object):
                 return result_return
         return None
 
-
+    '''
+    Deletes a particular collection id from the database
+    '''
     def delete(self,query):
         c = self.authenticate()
         response = c.delete_one(query)
-        #prints how many documents it deleted
-        #TODO can use to write a message
-        # print(response.deleted_count)
         return response.deleted_count
 
-
+    '''
+    Prints all the countries depending on collection id, year and top/bottom and number
+    If collection id does exist and year/bottom/top and number are invalid, it will return all results
+    '''
     def country_print(self,all,collection_id,year,decide,no):
         c = self.authenticate()
 
