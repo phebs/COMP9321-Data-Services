@@ -12,7 +12,12 @@ class database(object):
         self.collection = collection
         self.client = MongoClient(host=self.mongo_host,port = self.mongo_port)
 
-    def authenti
+    def authenticate(self):
+        db = self.client[self.db]
+        db.authenticate('phb', 'COMP9321')
+        c = db[self.collection]
+        return c
+
 
     def createPayload(self,data):
         # Removes the unncessary header
@@ -49,16 +54,8 @@ class database(object):
         # print(dataframe)
 
     def write_in_mongodb(self,dataframe):
-            """
-            :param dataframe:
-            :param mongo_host: Mongodb server address
-            :param mongo_port: Mongodb server port number
-            :param db_name: The name of the database
-            :param collection: the name of the collection inside the database
-            """
-            db = self.client[self.db]
-            db.authenticate('phb','COMP9321')
-            c = db[self.collection]
+
+            c=self.authenticate()
             # You can only store documents in mongodb;
             # so you need to convert rows inside the dataframe into a list of json objects
             records = dataframe
@@ -66,17 +63,7 @@ class database(object):
 
 
     def read_from(self,query,abbreviate):
-        """
-        :param mongo_host: Mongodb server address
-        :param mongo_port: Mongodb server port number
-        :param db_name: The name of the database
-        :param collection: the name of the collection inside the database
-        :return: A dataframe which contains all documents inside the collection
-        """
-        db = self.client[self.db]
-        db.authenticate('phb', 'COMP9321')
-        c = db[self.collection]
-
+        c = self.authenticate()
         ignore = {'_id':0}
         result = list(c.find(query,ignore))
         # print(result)
@@ -98,10 +85,7 @@ class database(object):
             return result_return
 
     def read_all(self):
-        db = self.client[self.db]
-        db.authenticate('phb', 'COMP9321')
-        c = db[self.collection]
-
+        c = self.authenticate()
         result_list=list()
         response = list(c.find().sort("collection_id"))
         for result in response:
@@ -116,9 +100,7 @@ class database(object):
         return result_list
 
     def queryYD(self,query,collection_id,year,country):
-        db = self.client[self.db]
-        db.authenticate('phb', 'COMP9321')
-        c = db[self.collection]
+        c = self.authenticate()
         result = list(c.find(query))
         result = result[0]
         #retrieves the first one that satisfies the criteria
@@ -136,9 +118,7 @@ class database(object):
 
 
     def delete(self,query):
-        db = self.client[self.db]
-        db.authenticate('phb', 'COMP9321')
-        c = db[self.collection]
+        c = self.authenticate()
         response = c.delete_one(query)
         #prints how many documents it deleted
         #TODO can use to write a message
@@ -147,9 +127,7 @@ class database(object):
 
 
     def country_print(self,all,collection_id,year,decide,no):
-        db = self.client[self.db]
-        db.authenticate('phb', 'COMP9321')
-        c = db[self.collection]
+        c = self.authenticate()
 
         query = {"collection_id" : collection_id}
         holder = list()
