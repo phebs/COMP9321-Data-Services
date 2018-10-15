@@ -1,4 +1,51 @@
-import pandas as pd
+mport pandas as pd
+from flask import Flask
+from flask_restplus import Resource, Api
+
+app = Flask(__name__)
+api = Api(app)
+
+
+@api.route('/books/<int:id>')
+class Books(Resource):
+    def get(self, id):
+        if id not in df.index:
+            api.abort(404, "Book {} doesn't exist".format(id))
+
+        book = dict(df.loc[id])
+        return book
+
+
+if __name__ == '__main__':
+    columns_to_drop = ['Edition Statement',
+                       'Corporate Author',
+                       'Corporate Contributors',
+                       'Former owner',
+                       'Engraver',
+"~/COMP9321-Data-Services/Week5_Flask/activity_1.py" 48L, 1404Cfrom flask_restplus import Resource, Api
+
+app = Flask(__name__)
+api = Api(app)
+
+
+@api.route('/books/<int:id>')
+class Books(Resource):
+    def get(self, id):
+        if id not in df.index:
+            api.abort(404, "Book {} doesn't exist".format(id))
+
+        book = dict(df.loc[id])
+        return book
+
+
+if __name__ == '__main__':
+    columns_to_drop = ['Edition Statement',
+                       'Corporate Author',
+                       'Corporate Contributors',
+                       'Former owner',
+                       'Engraver',
+"~/COMP9321-Data-Services/Week5_Flask/activity_1.py" 48L, 1404Cimport pandas as pd
+-- INSERT --import pandas as pd
 from flask import Flask
 from flask_restplus import Resource, Api
 
